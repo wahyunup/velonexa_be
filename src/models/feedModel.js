@@ -3,12 +3,12 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const getFeed = async () => {
-  return await prisma.feed.findMany({
-    include : {
-        user : {
-            select : {username : true}
+    return await prisma.feed.findMany({
+        include : {
+            user : {
+                select : {username : true}
+            }
         }
-    }
   });
 };
 

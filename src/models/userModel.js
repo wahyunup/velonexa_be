@@ -1,11 +1,23 @@
 import { PrismaClient } from "@prisma/client";
 
-const prisma = PrismaClient()
+const prisma = new PrismaClient()
 
-export const registerUser = async (usename, email, password, confirmPassword) => {
+export const getUser = async () => {
+    return await prisma.user.findMany()
+}
+
+export const getUserByEmail = async (email) => {
+    return await prisma.user.findUnique({
+        where : {email}
+    })
+}
+
+export const register = async (username, email, password) => {
     return await prisma.user.create({
         data: {
-            username
+            username,
+            email,
+            password
         }
     })
 }
