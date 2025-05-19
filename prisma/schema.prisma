@@ -1,47 +1,47 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
+  output   = "./node_modules/@prisma/client"
 }
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model user {
-    id   Int    @id @default(autoincrement())
-    username String 
-    display_name String?
-    email    String @unique
-    password String
+  id           Int     @id @default(autoincrement())
+  username     String
+  display_name String?
+  email        String  @unique
+  password     String
 
-    feed feed[]
-    comment comment_user[]
-
+  feed    feed[]
+  comment comment_user[]
 }
 
 model feed {
-    id   Int     @id @default(autoincrement())
-    image    String
-    address  String
-    description String
-    like_count   Int
-    save_count   Int
+  id          Int      @id @default(autoincrement())
+  image       String
+  address     String
+  description String
+  like_count  Int
+  save_count  Int
+  createdAt   DateTime @default(now())
 
-    user_id Int
-    user    user @relation(fields: [user_id], references: [id])
+  user_id Int
+  user    user @relation(fields: [user_id], references: [id])
 
-    comment comment_user[]
+  comment comment_user[]
 }
 
 model comment_user {
-    id    Int     @id @default(autoincrement())
-    field_comment String
-    like_count       Int
+  id            Int    @id @default(autoincrement())
+  field_comment String
+  like_count    Int
 
-    user_id Int
-    user   user @relation(fields: [user_id], references: [id])
+  user_id Int
+  user    user @relation(fields: [user_id], references: [id])
 
-    feed_id Int
-    feed feed @relation(fields: [feed_id], references: [id])
-
+  feed_id Int
+  feed    feed @relation(fields: [feed_id], references: [id])
 }

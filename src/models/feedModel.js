@@ -15,18 +15,17 @@ export const getFeed = async () => {
 export const createFeed = async (
   image,
   address,
-  description
+  description,
+  user_id
 ) => {
   return await prisma.feed.create({
     data: {
       image,
       address,
       description,
-      isLike : false,
-      isSave : false,
-      createAt: new Date(),
-      updateAt: new Date(),
-      idFromUser : Number(idFromUser)
+      like_count : 0,
+      save_count : 0,
+      user_id : Number(user_id),
     },
     include : {
         user : {
@@ -38,7 +37,7 @@ export const createFeed = async (
 
 export const editFeed = async (feedID, username, image, address) => {
   return await prisma.feed.update({
-    where: { feedId: Number(feedID) },
+    where: { id: Number(feedID) },
     data: {
       username: username,
       image: image,
@@ -49,6 +48,6 @@ export const editFeed = async (feedID, username, image, address) => {
 
 export const deleteFeed = async (feedId) => {
   return await prisma.feed.delete({
-    where: { feedId: Number(feedId) },
+    where: { id: Number(feedId) },
   });
 };

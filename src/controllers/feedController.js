@@ -8,52 +8,49 @@ import {
 export const getAllFeed = async (req, res) => {
   try {
     const allFeed = await getFeed();
-    res.status(200).json(allFeed);
+    return res.status(200).json(allFeed);
   } catch (error) {
-    res.status(400).json({ msg: error.message });
+    return res.status(400).json({ msg: error.message });
   }
 };
 
 export const createUserFeed = async (req, res) => {
   try {
-    const {
-      image,
-      address,
-      description,
-      idFromUser
-    } = req.body;
-    if (!image || !address || !description) {
-      res.status(400).json({ msg: "all field must be fill" });
+    const { image, address, description, user_id } = req.body;
+
+    if (!user_id) {
+      return res.status(401).json({ msg: "harap login terlebih dahulu" });
     }
-    await createFeed(image, address, description, idFromUser);
-    res.status(200).json({msg: "feed created"})
+
+    if (!image || !address || !description) {
+      return res.status(400).json({ msg: "all field must be fill" });
+    }
+
+    await createFeed(image, address, description, user_id);
+    return res.status(200).json({ msg: "feed created" });
   } catch (error) {
-    res.status(400).json({ msg: error.message });
+    return res.status(400).json({ msg: error.message });
   }
 };
 
 export const editUserFeed = async (req, res) => {
   try {
-    const {id} = req.params
-    const {
-      username,
-      image,
-      address,
-    } = req.body;
-    
+    const { id } = req.params;
+    const { username, image, address } = req.body;
+
     await editFeed(id, username, image, address);
-    res.status(200).json({msg: "feed updated", editFeed})
+    return res.status(200).json({ msg: "feed updated", editFeed });
   } catch (error) {
-    res.status(400).json({ msg: error.message });
+    return res.status(400).json({ msg: error.message });
   }
 };
 
 export const deletedUserFeed = async (req, res) => {
   try {
-    const {id} = req.params
+    const { id } = req.params;
     await deleteFeed(id);
-    res.status(200).json({msg: "feed deleted", editFeed})
+    return res.status(200).json({ msg: "feed deleted", deleteFeed });
   } catch (error) {
-    res.status(400).json({ msg: error.message });
+    return res.status(400).json({ msg: error.message });
   }
 };
