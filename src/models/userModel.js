@@ -12,12 +12,13 @@ export const getUserByEmail = async (email) => {
     })
 }
 
-export const register = async (username, email, password) => {
+export const register = async (username, email, password, display_name) => {
     return await prisma.user.create({
         data: {
             username,
             email,
-            password
+            password,
+            display_name
         }
     })
 }
