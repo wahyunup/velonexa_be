@@ -16,7 +16,8 @@ export const getAllFeed = async (req, res) => {
 
 export const createUserFeed = async (req, res) => {
   try {
-    const { image, address, description, user_id } = req.body;
+    const { image, address, description } = req.body;
+    const user_id = req.user?.userId
 
     if (!user_id) {
       return res.status(401).json({ msg: "harap login terlebih dahulu" });
@@ -36,9 +37,9 @@ export const createUserFeed = async (req, res) => {
 export const editUserFeed = async (req, res) => {
   try {
     const { id } = req.params;
-    const { username, image, address } = req.body;
+    const { description, image, address } = req.body;
 
-    await editFeed(id, username, image, address);
+    await editFeed(id, description, image, address);
     return res.status(200).json({ msg: "feed updated", editFeed });
   } catch (error) {
     return res.status(400).json({ msg: error.message });

@@ -35,11 +35,11 @@ export const createFeed = async (
   });
 };
 
-export const editFeed = async (feedID, username, image, address) => {
+export const editFeed = async (feedID, description, image, address) => {
   return await prisma.feed.update({
     where: { id: Number(feedID) },
     data: {
-      username: username,
+      description: description,
       image: image,
       address: address,
     },
