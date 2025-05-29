@@ -1,4 +1,10 @@
-import { register, getUser, getUserByEmail } from "../models/userModel.js";
+import {
+  register,
+  getUser,
+  getUserByEmail,
+  RefreshToken,
+  DeleteRefreshToken
+} from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { faker } from "@faker-js/faker";
@@ -6,8 +12,8 @@ import validator from "validator";
 
 export const getAllUser = async (req, res) => {
   try {
-    const allFeed = await getUser();
-    return res.status(200).json(allFeed);
+    const users = await getUser();
+    return res.status(200).json(users);
   } catch (error) {
     return res.status(400).json({ msg: error.message });
   }
@@ -64,25 +70,40 @@ export const login = async (req, res) => {
       return res.status(401).json({ msg: "password tidak sesuai" });
     }
 
-    const token = jwt.sign(
+    const accessToken = jwt.sign(
       {
-        userId: user.id,
+        id: user.id,
+        username: user.username,
+        display_name: user.display_name,
         email: user.email,
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      process.env.ACCESS_TOKEN_SECRET,
+      { expiresIn: "15m" }
     );
 
-    res.cookie("token", token, {
+    const refreshToken = jwt.sign(
+      {
+        id: user.id,
+        username: user.username,
+        display_name: user.display_name,
+        email: user.email,
+      },
+      process.env.REFRESH_TOKEN_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    await RefreshToken(user.id, refreshToken);
+
+    res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: true, // wajib jika HTTPS
-      sameSite: "Strict", // atau 'Lax'
-      maxAge: 3600000, // 1 jam
+      secure: true,
+      sameSite: "Strict",
+      maxAge: 3600000,
     });
 
     res.json({
       msg: "login berhasil",
-      token,
+      accessToken,
       user: {
         username: user.username,
         email: user.email,
@@ -90,6 +111,21 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    return res.status(401).json({ msg: "login gagal" });
+    console.error(error);
+    return res.status(500).json({ msg: "Terjadi kesalahan pada server" });
+  }
+};
+
+export const logout = async (req, res) => {
+  try {
+    const refreshToken = req.cookies.refresh_token
+    if(!refreshToken) {
+      res.status(400).json({msg : "refresh token tidak ada"})
+    }
+    await DeleteRefreshToken(refreshToken)
+    res.clearCookie("refresh_token");
+    return res.status(200).json({ msg: "logout berhasil" });
+  } catch (error) {
+    return res.status(401).json({ msg: "gagal logout" });
   }
 };

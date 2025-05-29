@@ -17,7 +17,7 @@ export const getAllFeed = async (req, res) => {
 export const createUserFeed = async (req, res) => {
   try {
     const { image, address, description } = req.body;
-    const user_id = req.user?.userId
+    const user_id = req.user?.id
 
     if (!user_id) {
       return res.status(401).json({ msg: "harap login terlebih dahulu" });

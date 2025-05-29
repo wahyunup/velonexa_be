@@ -1,6 +1,11 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
-  output   = "./node_modules/@prisma/client"
 }
 
 datasource db {
@@ -9,11 +14,12 @@ datasource db {
 }
 
 model user {
-  id           Int     @id @default(autoincrement())
-  username     String
-  display_name String?
-  email        String  @unique
-  password     String
+  id            Int     @id @default(autoincrement())
+  username      String
+  display_name  String?
+  email         String  @unique
+  password      String
+  refresh_token String? @db.Text
 
   feed    feed[]
   comment comment_user[]
