@@ -13,7 +13,15 @@ import validator from "validator";
 export const getAllUser = async (req, res) => {
   try {
     const users = await getUser();
-    return res.status(200).json(users);
+    
+    if (!users) {
+      return res.status(404).json({ msg: "user not found" });
+    }
+
+    return res.status(200).json({
+      msg: "success",
+      data: users,
+    });
   } catch (error) {
     return res.status(400).json({ msg: error.message });
   }
@@ -78,7 +86,7 @@ export const login = async (req, res) => {
         email: user.email,
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "15m" }
+      { expiresIn: "7s" }
     );
 
     const refreshToken = jwt.sign(
@@ -123,7 +131,8 @@ export const logout = async (req, res) => {
       res.status(400).json({msg : "refresh token tidak ada"})
     }
     await DeleteRefreshToken(refreshToken)
-    res.clearCookie("refresh_token");
+    res.clearCookie("refresh_token", { httpOnly: true, secure: true });
+
     return res.status(200).json({ msg: "logout berhasil" });
   } catch (error) {
     return res.status(401).json({ msg: "gagal logout" });
