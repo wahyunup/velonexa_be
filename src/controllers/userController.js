@@ -63,7 +63,7 @@ export const registerUser = async (req, res) => {
   } catch (error) {
     return res.status(400).json({ msg: error.message });
   }
-};
+}; 
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
