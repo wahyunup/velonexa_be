@@ -29,6 +29,7 @@ model user {
 
 model feed {
   id          Int      @id @default(autoincrement())
+  user_id     Int
   image       String
   address     String
   description String
@@ -36,20 +37,17 @@ model feed {
   save_count  Int
   createdAt   DateTime @default(now())
 
-  user_id Int
-  user    user @relation(fields: [user_id], references: [id])
-
   comment comment_user[]
+  user    user           @relation(fields: [user_id], references: [id])
 }
 
 model comment_user {
   id            Int    @id @default(autoincrement())
+  user_id       Int
+  feed_id       Int
   field_comment String
-  like_count    Int
+  like_count    Int?
 
-  user_id Int
-  user    user @relation(fields: [user_id], references: [id])
-
-  feed_id Int
-  feed    feed @relation(fields: [feed_id], references: [id])
+  user user @relation(fields: [user_id], references: [id])
+  feed feed @relation(fields: [feed_id], references: [id])
 }
