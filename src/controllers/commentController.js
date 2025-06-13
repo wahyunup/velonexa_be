@@ -1,42 +1,148 @@
-import { getComments, createCommentInModel } from "../models/commentModel.js";
+import {
+  likeComment,
+  getCommentWithLikes,
+  getCommentsByFeedId,
+  getCommentLikers,
+  createComment,
+} from "../models/commentModel.js";
 
-export const getFeedComments = async (req, res) => {
+export const createFeedComment = async (req, res) => {
   try {
     const { feedId } = req.params;
+    const { content } = req.body;
+    const userId = req.user?.id;
 
-    if (!feedId) {
+    if (!feedId || !content) {
       return res.status(400).json({
-        msg: "Feed ID is required",
+        success: false,
+        message: "Feed ID and content are required",
       });
     }
 
-    const comments = await getComments(feedId);
-    return res.status(200).json({
-      msg: "Comments retrieved successfully",
-      data: comments,
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const newComment = await createComment(feedId, userId, content);
+
+    return res.status(201).json({
+      success: true,
+      message: "Comment created successfully",
+      data: newComment,
     });
   } catch (error) {
-    return res.status(400).json({ msg: error.message });
+    console.error("Error in createComment:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
 
-export const createComment = async (req, res) => {
+export const handleLikeComment = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const userId = req.user?.id;
+
+    if (!commentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment ID is required",
+      });
+    }
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const result = await likeComment(commentId, userId);
+    const updatedComment = await getCommentWithLikes(commentId, userId);
+
+    return res.status(200).json({
+      success: true,
+      message: `Comment ${result.action} successfully`,
+      data: {
+        commentId: updatedComment.id,
+        likeCount: updatedComment.like_count,
+        isLiked: result.isLiked,
+        likedByUsers: updatedComment.likedByUsers,
+      },
+    });
+  } catch (error) {
+    console.error("Error in handleLikeComment:", error);
+
+    if (error.message === "Comment not found") {
+      return res.status(404).json({
+        success: false,
+        message: "Comment not found",
+      });
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getComments = async (req, res) => {
   try {
     const { feedId } = req.params;
-    const { comment, like_count } = req.body;
-    const user_id = req.user?.id;
+    const userId = req.user?.id;
 
-    if (!user_id) {
-      return res.status(401).json({ msg: "Please log in first" });
+    if (!feedId) {
+      return res.status(400).json({
+        success: false,
+        message: "Feed ID is required",
+      });
     }
 
-    if (!feedId || !comment) {
-      return res.status(400).json({ msg: "Feed ID and comment are required" });
-    }
+    const comments = await getCommentsByFeedId(feedId, userId);
 
-    await createCommentInModel(feedId, comment, user_id, like_count);
-    return res.status(200).json({ msg: "Comment created successfully" });
+    return res.status(200).json({
+      success: true,
+      data: comments,
+    });
   } catch (error) {
-    return res.status(400).json({ msg: error.message });
+    console.error("Error in getComments:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+export const getCommentLikes = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+
+    if (!commentId) {
+      return res.status(400).json({
+        success: false,
+        message: "Comment ID is required",
+      });
+    }
+
+    const likers = await getCommentLikers(commentId);
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        totalLikes: likers.length,
+        likedByUsers: likers,
+      },
+    });
+  } catch (error) {
+    console.error("Error in getCommentLikes:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
   }
 };
