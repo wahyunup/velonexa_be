@@ -3,35 +3,30 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const getFeed = async () => {
-    return await prisma.feed.findMany({
-        include : {
-            user : {
-                select : {username : true}
-            }
-        }
+  return await prisma.feed.findMany({
+    include: {
+      user: {
+        select: { username: true },
+      },
+    },
   });
 };
 
-export const createFeed = async (
-  image,
-  address,
-  description,
-  user_id
-) => {
+export const createFeed = async (image, address, description, user_id) => {
   return await prisma.feed.create({
     data: {
       image,
       address,
       description,
-      like_count : 0,
-      save_count : 0,
-      user_id : Number(user_id),
+      like_count: 0,
+      save_count: 0,
+      user_id: Number(user_id),
     },
-    include : {
-        user : {
-            select : { username : true}
-        }
-    }
+    include: {
+      user: {
+        select: { username: true },
+      },
+    },
   });
 };
 
