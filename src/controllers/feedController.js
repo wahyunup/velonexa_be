@@ -4,7 +4,7 @@ import {
   deleteFeed,
   editFeed,
   getFeed,
-  getLikeId
+  getLikeId,
 } from "../models/feedModel.js";
 
 export const getAllFeed = async (req, res) => {
@@ -65,22 +65,21 @@ export const likeFeed = async (req, res) => {
 
     const { like } = req.body;
 
-    const {feed_id} = req.params;
+    const { feed_id } = req.params;
 
     if (!feed_id) {
-      return res.status(400).json({msg: "feed id tidak ditemukan"})
+      return res.status(400).json({ msg: "feed id tidak ditemukan" });
     }
 
     if (!user_id) {
       return res.status(401).json({ msg: "user belum login" });
     }
     await addLike(user_id, feed_id, like);
-        if (like) {
-          return res.status(200).json({ msg: "berhasil like", isLike: like });
-        } else if (!like) {
-          return res.status(200).json({ msg: "berhasil unlike", isLike: like });
-        }
-
+    if (like) {
+      return res.status(200).json({ msg: "berhasil like", isLike: like });
+    } else if (!like) {
+      return res.status(200).json({ msg: "berhasil unlike", isLike: like });
+    }
   } catch (error) {
     return res.status(400).json(error);
   }
@@ -89,19 +88,21 @@ export const likeFeed = async (req, res) => {
 export const getLike = async (req, res) => {
   try {
     const user_id = req.user?.id;
-    const {feed_id} = req.params;
+    const { feed_id } = req.params;
 
-    if(!user_id) {
-      return res.status(400).json({msg:"id user tidak ditemukan"})
+    if (!user_id) {
+      return res.status(400).json({ msg: "id user tidak ditemukan" });
     }
 
-    if(!feed_id) {
-      return res.status(400).json({msg:"id feed tidak ditemukan"})
+    if (!feed_id) {
+      return res.status(400).json({ msg: "id feed tidak ditemukan" });
     }
-    const getLikes = await getLikeId(user_id, feed_id)
+    const getLikes = await getLikeId(user_id, feed_id);
 
-    return res.status(200).json({msg:"success dapet likenya", data : getLikes})
+    return res
+      .status(200)
+      .json({ msg: "success dapet likenya", data: getLikes });
   } catch (error) {
-    return res.status(400).json({msg:"gagal dapat status", error})
+    return res.status(400).json({ msg: "gagal dapat status", error });
   }
-}
+};

@@ -3,35 +3,30 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 export const getFeed = async () => {
-    return await prisma.feed.findMany({
-        include : {
-            user : {
-                select : {username : true}
-            }
-        }
+  return await prisma.feed.findMany({
+    include: {
+      user: {
+        select: { username: true },
+      },
+    },
   });
 };
 
-export const createFeed = async (
-  image,
-  address,
-  description,
-  user_id
-) => {
+export const createFeed = async (image, address, description, user_id) => {
   return await prisma.feed.create({
     data: {
       image,
       address,
       description,
-      like_count : 0,
-      save_count : 0,
-      user_id : Number(user_id),
+      like_count: 0,
+      save_count: 0,
+      user_id: Number(user_id),
     },
-    include : {
-        user : {
-            select : { username : true}
-        }
-    }
+    include: {
+      user: {
+        select: { username: true },
+      },
+    },
   });
 };
 
@@ -93,22 +88,20 @@ export const addLike = async (user_id, feed_id, like) => {
       await prisma.feed.update({
         where: { id: Number(feed_id) },
         data: {
-          like_count: like
-            ? { increment: 1 }
-            : { decrement: 1 },
+          like_count: like ? { increment: 1 } : { decrement: 1 },
         },
       });
     }
   }
 };
 
-export const getLikeId = async (user_id, feed_id) => { 
+export const getLikeId = async (user_id, feed_id) => {
   return prisma.like_user.findUnique({
     where: {
-      user_id_feed_id : {
-        feed_id : Number(feed_id) ,
-        user_id : Number(user_id)
-      }
-    }
-  })
-}
+      user_id_feed_id: {
+        feed_id: Number(feed_id),
+        user_id: Number(user_id),
+      },
+    },
+  });
+};
