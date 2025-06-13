@@ -88,22 +88,20 @@ export const addLike = async (user_id, feed_id, like) => {
       await prisma.feed.update({
         where: { id: Number(feed_id) },
         data: {
-          like_count: like
-            ? { increment: 1 }
-            : { decrement: 1 },
+          like_count: like ? { increment: 1 } : { decrement: 1 },
         },
       });
     }
   }
 };
 
-export const getLikeId = async (user_id, feed_id) => { 
+export const getLikeId = async (user_id, feed_id) => {
   return prisma.like_user.findUnique({
     where: {
-      user_id_feed_id : {
-        feed_id : Number(feed_id) ,
-        user_id : Number(user_id)
-      }
-    }
-  })
-}
+      user_id_feed_id: {
+        feed_id: Number(feed_id),
+        user_id: Number(user_id),
+      },
+    },
+  });
+};
