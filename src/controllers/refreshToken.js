@@ -21,18 +21,18 @@ export const getToken = async (req, res) => {
           {
             id: refreshTokenUser.id,
             username: refreshTokenUser.username,
-            display_name: refreshTokenUser.display_name,
+            displayname: refreshTokenUser.display_name,
             email: refreshTokenUser.email,
           },
           process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "15m" }
+          { expiresIn: "7s" }
         );
 
         return res.json({ accessToken });
       }
     );
 
-    return res.status(200).json({ msg: "refresh token berhasil" });
+    // return res.status(200).json({ msg: "refresh token berhasil" });
   } catch (error) {
     return res.status(404).json({ msg: "refresh token gagal" });
   }

@@ -22,6 +22,7 @@ model user {
   refresh_token String? @db.Text
 
   feed    feed[]
+  like    like_user[]
   comment comment_user[]
 }
 
@@ -38,6 +39,21 @@ model feed {
   user    user @relation(fields: [user_id], references: [id])
 
   comment comment_user[]
+  like like_user[]
+}
+
+model like_user {
+  id Int @id @default(autoincrement())
+
+  isLike Boolean @default(false)
+
+  user_id Int
+  user    user @relation(fields: [user_id], references: [id])
+
+  feed_id Int
+  feed    feed @relation(fields: [feed_id], references: [id])
+
+   @@unique([user_id, feed_id])
 }
 
 model comment_user {
