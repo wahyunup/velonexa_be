@@ -23,9 +23,10 @@ model user {
   password      String
   refresh_token String? @db.Text
 
-  feed    feed[]
-  like    like_user[]
-  comment comment_user[]
+  feed         feed[]
+  like         like_user[]
+  comment      comment_user[]
+  comment_like comment_like[]
 }
 
 model feed {
@@ -40,7 +41,7 @@ model feed {
 
   comment comment_user[]
   user    user           @relation(fields: [user_id], references: [id])
-  like like_user[]
+  like    like_user[]
 }
 
 model like_user {
@@ -58,12 +59,28 @@ model like_user {
 }
 
 model comment_user {
-  id            Int    @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   user_id       Int
   feed_id       Int
   field_comment String
-  like_count    Int?
+  like_count    Int?     @default(0)
+  createdAt     DateTime @default(now())
 
   user user @relation(fields: [user_id], references: [id])
   feed feed @relation(fields: [feed_id], references: [id])
+
+  likes comment_like[]
+}
+
+model comment_like {
+  id Int @id @default(autoincrement())
+
+  user_id    Int
+  comment_id Int
+  createdAt  DateTime @default(now())
+
+  user    user         @relation(fields: [user_id], references: [id])
+  comment comment_user @relation(fields: [comment_id], references: [id])
+
+  @@unique([user_id, comment_id])
 }
