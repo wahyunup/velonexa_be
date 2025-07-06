@@ -9,10 +9,10 @@ generator client {
 }
 
 datasource db {
-  // provider = "mysql"
-  provider  = "postgresql"
+  provider = "mysql"
+  // provider  = "postgresql"
   url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 model user {
@@ -26,6 +26,7 @@ model user {
   feed    feed[]
   like    like_user[]
   comment comment_user[]
+  bio bio_user[]
 }
 
 model feed {
@@ -68,4 +69,11 @@ model comment_user {
 
   feed_id Int
   feed    feed @relation(fields: [feed_id], references: [id])
+}
+
+model bio_user {
+  id Int @id @default(autoincrement())
+  bio String 
+  user_id Int
+  user user @relation(fields: [user_id], references: [id])
 }
