@@ -11,7 +11,7 @@ generator client {
 datasource db {
   provider = "mysql"
   // provider  = "postgresql"
-  url       = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
   // directUrl = env("DIRECT_URL")
 }
 
@@ -23,11 +23,17 @@ model user {
   password      String
   refresh_token String? @db.Text
 
-  feed         feed[]
-  like         like_user[]
-  comment      comment_user[]
-  comment_like comment_like[]
-  bio bio_user[]
+
+  feed    feed[]
+  like    like_user[]
+  comment comment_user[]
+  bio     bio_user?
+
+  notificationsReceived notification[] @relation("ReceivedNotifications")
+  notificationsSent     notification[] @relation("SentNotifications")
+
+
+
 
 }
 
@@ -41,9 +47,13 @@ model feed {
   save_count  Int
   createdAt   DateTime @default(now())
 
-  comment comment_user[]
-  user    user           @relation(fields: [user_id], references: [id])
-  like    like_user[]
+  user_id Int
+  user    user @relation(fields: [user_id], references: [id])
+
+  comment      comment_user[]
+  like         like_user[]
+  notification notification[]
+
 }
 
 model like_user {
@@ -88,8 +98,22 @@ model comment_like {
 }
 
 model bio_user {
-  id Int @id @default(autoincrement())
-  bio String 
-  user_id Int
-  user user @relation(fields: [user_id], references: [id])
+  id      Int    @id @default(autoincrement())
+  bio     String
+  user_id Int    @unique
+  user    user   @relation(fields: [user_id], references: [id])
+}
+
+model notification {
+  id        Int      @id @default(autoincrement())
+  type      String?
+  actorId   Int
+  targetId  Int
+  feedId    Int
+  createdAt DateTime @default(now())
+  isRead    Boolean  @default(false)
+
+  actor  user  @relation("SentNotifications", fields: [actorId], references: [id])
+  target user  @relation("ReceivedNotifications", fields: [targetId], references: [id])
+  feed   feed? @relation(fields: [feedId], references: [id])
 }

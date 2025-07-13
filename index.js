@@ -22,7 +22,7 @@ app.use(router)
 const port = 3001
 app.listen(port, () => {
   console.log("welcome to velonexa 🤠");
-  console.log(`server is running on port ${port}`);
+  console.log(`velonexa is running on port ${port} 🚀`);
 })
 
 export default app

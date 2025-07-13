@@ -5,20 +5,35 @@ import {
   editFeed,
   getFeed,
   getLikeId,
+  getAllFeeds
 } from "../models/feedModel.js";
+import { cloudinaryUpload } from "../utils/cloudinaryUpload.js";
 
 export const getAllFeed = async (req, res) => {
   try {
-    const allFeed = await getFeed();
+    const page = parseInt(req.query.page);
+    const limit = parseInt(req.query.limit);
+
+    const allFeed = await getFeed(page, limit);
     return res.status(200).json(allFeed);
   } catch (error) {
     return res.status(400).json({ msg: error.message });
   }
 };
 
+export const getAllFeedExplore = async (req, res) => {
+  try {
+    const data = await getAllFeeds();
+    res.status(200)
+      .json({ msg: "get all feed successfully", data });
+  } catch (error) {
+    res.status(400).json({msg: error.message})
+  }
+};
+
 export const createUserFeed = async (req, res) => {
   try {
-    const { image, address, description } = req.body;
+    const { address, description } = req.body;
 
     const user_id = req.user?.id;
 
@@ -26,11 +41,12 @@ export const createUserFeed = async (req, res) => {
       return res.status(401).json({ msg: "harap login terlebih dahulu" });
     }
 
-    if (!image || !address || !description) {
+    if (!address || !description) {
       return res.status(400).json({ msg: "all field must be fill" });
     }
-
-    await createFeed(image, address, description, user_id);
+    const fileBuffer = req.file.buffer;
+    const imageUrl = await cloudinaryUpload(fileBuffer);
+    await createFeed(imageUrl, address, description, user_id);
     return res.status(200).json({ msg: "feed created" });
   } catch (error) {
     return res.status(400).json({ msg: error.message });

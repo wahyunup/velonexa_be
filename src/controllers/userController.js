@@ -3,7 +3,9 @@ import {
   getUser,
   getUserByEmail,
   RefreshToken,
-  DeleteRefreshToken
+  DeleteRefreshToken,
+  editUser,
+  getUserById,
 } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -13,7 +15,7 @@ import validator from "validator";
 export const getAllUser = async (req, res) => {
   try {
     const users = await getUser();
-    
+
     if (!users) {
       return res.status(404).json({ msg: "user not found" });
     }
@@ -24,6 +26,24 @@ export const getAllUser = async (req, res) => {
     });
   } catch (error) {
     return res.status(400).json({ msg: error.message });
+  }
+};
+
+export const getSingleUser = async (req, res) => {
+  try {
+    const email = req.user.email;
+
+    if (!email) {
+      return res.status(400).json({ msg: "user not found" });
+    }
+
+    const user = await getUserByEmail(email);
+    return res.status(200).json({
+      msg: "get user success",
+      user: user,
+    });
+  } catch (error) {
+    return res.status(400).json({ msg: "failed get user" });
   }
 };
 
@@ -63,7 +83,7 @@ export const registerUser = async (req, res) => {
   } catch (error) {
     return res.status(400).json({ msg: error.message });
   }
-}; 
+};
 
 export const login = async (req, res) => {
   const { email, password } = req.body;
@@ -126,15 +146,53 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
-    const refreshToken = req.cookies.refresh_token
-    if(!refreshToken) {
-      res.status(400).json({msg : "refresh token tidak ada"})
+    const refreshToken = req.cookies.refresh_token;
+    if (!refreshToken) {
+      res.status(400).json({ msg: "refresh token tidak ada" });
     }
-    await DeleteRefreshToken(refreshToken)
+    await DeleteRefreshToken(refreshToken);
     res.clearCookie("refresh_token", { httpOnly: true, secure: true });
 
     return res.status(200).json({ msg: "logout berhasil" });
   } catch (error) {
     return res.status(401).json({ msg: "gagal logout" });
+  }
+};
+
+export const setEditUser = async (req, res) => {
+  try {
+    const user_id = req.user?.id;
+    const { bio, display_name, username } = req.body;
+
+    if (!user_id) {
+      return res.status(400).json({ msg: "user tidak tersedia" });
+    }
+
+    if (!username || !display_name) {
+      return res
+        .status(400)
+        .json({ msg: "username and display name are required" });
+    }
+
+    const editedUser = await editUser(user_id, bio, display_name, username);
+    return res.status(200).json({
+      msg: "edit success",
+      editedUser,
+    });
+  } catch (error) {
+    return res.status(400).json({ msg: "edited failed", error: error });
+  }
+};
+
+export const getUserDetail = async (req, res) => {
+  try {
+    const {id} = req.params;
+    if (!id) {
+      return res.status(400).json({ msg: "user tidak tersedia" });
+    }
+    const user = await getUserById(id);
+    return res.status(200).json({ msg: "user berhasil didapatkan", user });
+  } catch (error) {
+    return res.status(400).json({ msg: "internal server error", error });
   }
 };
