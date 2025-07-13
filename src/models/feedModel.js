@@ -2,15 +2,32 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const getFeed = async () => {
+export const getFeed = async (page , limit) => {
+const skip = (page - 1) * limit
   return await prisma.feed.findMany({
+    skip: skip,
+    take: limit,
     include: {
       user: {
         select: { username: true },
       },
     },
+    orderBy : {
+      createdAt : "desc"
+    }
   });
 };
+
+export const getAllFeeds = async () => {
+  return await prisma.feed.findMany({
+    include: {user : {
+      select : {username : true}
+    }},
+    orderBy : {
+      createdAt : "desc"
+    }
+  })
+}
 
 export const createFeed = async (image, address, description, user_id) => {
   return await prisma.feed.create({
