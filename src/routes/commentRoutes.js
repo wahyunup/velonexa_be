@@ -9,5 +9,6 @@ router.get("/comments/feed/:feedId", authToken, getComments);
 router.get("/comments/like/:commentId", authToken, getCommentLikes);
 router.post("/comments/feed/:feedId", authToken, createFeedComment);
 router.post("/comments/feed/:feedId/like/:commentId", authToken, handleLikeComment);
+router.get("/comments/feed/:feedId/like/:commentId", authToken, handleLikeComment);
 
 export default router;

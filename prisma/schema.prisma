@@ -17,29 +17,25 @@ datasource db {
 
 model user {
   id            Int     @id @default(autoincrement())
+  image         String? @default("https://res.cloudinary.com/dbc9pgfws/image/upload/v1752722403/image_placeholder_nmmqdn.png")
   username      String
   display_name  String?
   email         String  @unique
   password      String
   refresh_token String? @db.Text
 
-
-  feed    feed[]
-  like    like_user[]
-  comment comment_user[]
-  bio     bio_user?
+  feed         feed[]
+  like         like_user[]
+  comment      comment_user[]
+  bio          bio_user?
+  comment_like comment_like[]
 
   notificationsReceived notification[] @relation("ReceivedNotifications")
   notificationsSent     notification[] @relation("SentNotifications")
-
-
-
-
 }
 
 model feed {
   id          Int      @id @default(autoincrement())
-  user_id     Int
   image       String
   address     String
   description String
@@ -53,7 +49,6 @@ model feed {
   comment      comment_user[]
   like         like_user[]
   notification notification[]
-
 }
 
 model like_user {
@@ -71,17 +66,16 @@ model like_user {
 }
 
 model comment_user {
-  id            Int      @id @default(autoincrement())
-  user_id       Int
-  feed_id       Int
+  id            Int    @id @default(autoincrement())
   field_comment String
-  like_count    Int?     @default(0)
-  createdAt     DateTime @default(now())
+  like_count    Int
 
-  user user @relation(fields: [user_id], references: [id])
-  feed feed @relation(fields: [feed_id], references: [id])
+  user_id Int
+  user    user @relation(fields: [user_id], references: [id])
 
-  likes comment_like[]
+  feed_id Int
+  feed    feed           @relation(fields: [feed_id], references: [id])
+  likes   comment_like[]
 }
 
 model comment_like {
@@ -107,13 +101,13 @@ model bio_user {
 model notification {
   id        Int      @id @default(autoincrement())
   type      String?
-  actorId   Int
-  targetId  Int
-  feedId    Int
+  actor_id  Int
+  target_id Int
+  feed_id   Int
   createdAt DateTime @default(now())
   isRead    Boolean  @default(false)
 
-  actor  user  @relation("SentNotifications", fields: [actorId], references: [id])
-  target user  @relation("ReceivedNotifications", fields: [targetId], references: [id])
-  feed   feed? @relation(fields: [feedId], references: [id])
+  actor  user  @relation("SentNotifications", fields: [actor_id], references: [id])
+  target user  @relation("ReceivedNotifications", fields: [target_id], references: [id])
+  feed   feed? @relation(fields: [feed_id], references: [id])
 }

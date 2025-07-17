@@ -6,11 +6,13 @@ import {
   DeleteRefreshToken,
   editUser,
   getUserById,
+  uploadProfileImage,
 } from "../models/userModel.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { faker } from "@faker-js/faker";
 import validator from "validator";
+import { cloudinaryUploadProfile } from "../utils/cloudinaryUpload.js";
 
 export const getAllUser = async (req, res) => {
   try {
@@ -104,6 +106,7 @@ export const login = async (req, res) => {
         username: user.username,
         display_name: user.display_name,
         email: user.email,
+        image: user.image,
       },
       process.env.ACCESS_TOKEN_SECRET,
       { expiresIn: "7s" }
@@ -115,6 +118,7 @@ export const login = async (req, res) => {
         username: user.username,
         display_name: user.display_name,
         email: user.email,
+        image: user.image,
       },
       process.env.REFRESH_TOKEN_SECRET,
       { expiresIn: "7d" }
@@ -136,6 +140,7 @@ export const login = async (req, res) => {
         username: user.username,
         email: user.email,
         display_name: user.display_name,
+        image: user.image,
       },
     });
   } catch (error) {
@@ -186,7 +191,7 @@ export const setEditUser = async (req, res) => {
 
 export const getUserDetail = async (req, res) => {
   try {
-    const {id} = req.params;
+    const { id } = req.params;
     if (!id) {
       return res.status(400).json({ msg: "user tidak tersedia" });
     }
@@ -194,5 +199,31 @@ export const getUserDetail = async (req, res) => {
     return res.status(200).json({ msg: "user berhasil didapatkan", user });
   } catch (error) {
     return res.status(400).json({ msg: "internal server error", error });
+  }
+};
+
+export const createProfileImage = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      res.status(401).json({
+        msg: "user un authorization",
+      });
+    }
+    const fileBuffer = req.file.buffer;
+    const imageUrl = await cloudinaryUploadProfile(fileBuffer);
+
+    if (!imageUrl) {
+      res.status(400).json({
+        msg: "image not found",
+      });
+    }
+
+    await uploadProfileImage(userId, imageUrl);
+    return res.status(200).json({
+      msg: "upload success",
+    });
+  } catch (error) {
+    res.status(400).json({ msg: "internal server error" });
   }
 };

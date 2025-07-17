@@ -9,7 +9,8 @@ export const getUser = async () => {
       username: true,
       email: true,
       display_name: true,
-      feed: true
+      feed: true,
+      image: true
     }
   });
 };
@@ -19,7 +20,7 @@ export const getUserByEmail = async (email) => {
     where: { email },
     include: {
       feed: true,
-      bio: true
+      bio: true,  
     }
   });
 };
@@ -29,7 +30,7 @@ export const getUserById = async (id) => {
     where: { id: Number(id) },
     include: {
       feed: true,
-      bio: true
+      bio: true,
     }
   });
 };
@@ -39,7 +40,7 @@ export const editUser = async (user_id, bio, display_name, username) => {
     where : {id: Number(user_id)},
     data : {
       display_name: display_name,
-      username: username
+      username: username,
     }
   })
 
@@ -86,4 +87,11 @@ export const findRefreshToken = async (refresh_token) => {
     return await prisma.user.findFirst({
         where: {refresh_token : refresh_token}
     })
+}
+
+export const uploadProfileImage = async (userId, profileImage) => {
+  return await prisma.user.update({
+    where : {id: userId},
+    data : {image : profileImage}
+  })
 }
