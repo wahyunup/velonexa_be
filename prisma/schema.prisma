@@ -9,10 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  // provider  = "postgresql"
+  provider  = "postgresql"
   url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model user {
@@ -32,6 +31,8 @@ model user {
 
   notificationsReceived notification[] @relation("ReceivedNotifications")
   notificationsSent     notification[] @relation("SentNotifications")
+
+  comment_likes comment_like[]
 }
 
 model feed {
@@ -43,9 +44,7 @@ model feed {
   save_count  Int
   createdAt   DateTime @default(now())
 
-  user_id Int
   user    user @relation(fields: [user_id], references: [id])
-
   comment      comment_user[]
   like         like_user[]
   notification notification[]
