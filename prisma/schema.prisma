@@ -9,9 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "mysql"
   url      = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  // directUrl = env("DIRECT_URL")
 }
 
 model user {
@@ -23,16 +23,32 @@ model user {
   password      String
   refresh_token String? @db.Text
 
-  feed         feed[]
-  like         like_user[]
-  comment      comment_user[]
-  bio          bio_user?
-  comment_like comment_like[]
+  feed          feed[]
+  like          like_user[]
+  comment       comment_user[]
+  bio           bio_user?
+  comment_likes comment_like[]
+  following     follow_user[]  @relation("target_relation")
+  follower      follow_user[]  @relation("user_relation")
 
   notificationsReceived notification[] @relation("ReceivedNotifications")
   notificationsSent     notification[] @relation("SentNotifications")
 
-  comment_likes comment_like[]
+  chatReceived chat[] @relation("ReceivedMessage")
+  chatSent     chat[] @relation("SentMessage")
+}
+
+model follow_user {
+  id       Int     @id @default(autoincrement())
+  isFollow Boolean @default(false)
+
+  target_id Int
+  target    user @relation("target_relation", fields: [target_id], references: [id])
+
+  user_id Int
+  user    user @relation("user_relation", fields: [user_id], references: [id])
+
+  @@unique([user_id, target_id])
 }
 
 model feed {
@@ -44,7 +60,8 @@ model feed {
   save_count  Int
   createdAt   DateTime @default(now())
 
-  user    user @relation(fields: [user_id], references: [id])
+  user_id      Int
+  user         user           @relation(fields: [user_id], references: [id])
   comment      comment_user[]
   like         like_user[]
   notification notification[]
@@ -102,11 +119,23 @@ model notification {
   type      String?
   actor_id  Int
   target_id Int
-  feed_id   Int
+  feed_id   Int?
   createdAt DateTime @default(now())
   isRead    Boolean  @default(false)
 
   actor  user  @relation("SentNotifications", fields: [actor_id], references: [id])
   target user  @relation("ReceivedNotifications", fields: [target_id], references: [id])
   feed   feed? @relation(fields: [feed_id], references: [id])
+}
+
+model chat {
+  id        Int      @id @default(autoincrement())
+  actor_id  Int
+  target_id Int
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  actor  user @relation("SentMessage", fields: [actor_id], references: [id])
+  target user @relation("ReceivedMessage", fields: [target_id], references: [id])
 }

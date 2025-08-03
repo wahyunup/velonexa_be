@@ -49,7 +49,9 @@ export const createFeed = async (image, address, description, user_id) => {
     },
     include: {
       user: {
-        select: { username: true, image: true },
+        select: { 
+          username: true, 
+          image: true },
       },
     },
   });

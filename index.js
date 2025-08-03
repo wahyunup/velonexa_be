@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 
 import http from "http";
 import { Server } from "socket.io";
-import { notificationSocket } from "./socket/notificationSocket.js";
+import { socketHandler } from "./socket/index.js";
 
 const corsOptions = {
   origin: "http://localhost:5173",
@@ -19,7 +19,8 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "http://localhost:5173",
+    credentials: true,
   },
 });
 
@@ -28,21 +29,13 @@ app.use((req, res, next) => {
   next();
 });
 
-notificationSocket(io);
+socketHandler(io);
 
 dotenv.config();
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
 app.use(router);
-
-io.on("connection", (socket) => {
-  console.log("socket konekkk ----------> ", socket.id);
-
-  socket.on("disconnect", () => {
-    console.log("Socket diskonekk --------->", socket.id);
-  });
-});
 
 const port = 3001;
 server.listen(port, () => {

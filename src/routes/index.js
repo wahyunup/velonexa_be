@@ -4,7 +4,8 @@ import userRoutes from "../routes/userRoutes.js";
 import commentRoutes from "../routes/commentRoutes.js";
 import RefreshToken from "../routes/refreshTokenRoutes.js";
 import notificationRoutes from "../routes/notificationRoutes.js";
-
+import followRoutes from "../routes/followRoutes.js";
+import chatRoutes from "../routes/chatRoutes.js";
 const router = express.Router();
 
 router.use(
@@ -12,7 +13,9 @@ router.use(
   userRoutes,
   RefreshToken,
   commentRoutes,
-  notificationRoutes
+  notificationRoutes,
+  followRoutes,
+  chatRoutes
 );
 
 export default router;
