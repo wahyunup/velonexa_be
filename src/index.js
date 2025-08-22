@@ -1,12 +1,12 @@
 import express from "express";
-import router from "./src/routes/index.js";
+import router from "../src/routes/index.js";
 import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
 import http from "http";
 import { Server } from "socket.io";
-import { socketHandler } from "./socket/index.js";
+import { socketHandler } from "../socket/index.js";
 
 const corsOptions = {
   origin: "http://localhost:5173",
