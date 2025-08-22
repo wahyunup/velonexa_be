@@ -1,4 +1,4 @@
-import { getAllBookmark, getFeedSaved, saveFeed } from "../models/SaveFeedModel.js";
+import { getAllBookmark, getFeedSaved, saveFeed } from "../models/saveFeedModel.js";
 
 export const getAllFeedSaved = async (req, res) => {
   try {
