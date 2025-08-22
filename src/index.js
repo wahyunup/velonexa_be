@@ -39,8 +39,12 @@ app.use(express.json());
 app.use(router);
 
 const port = process.env.PRODUCTION_URL ||  3001;
-app.get("/", () => {
- res.json({ msg: "Welcome to Velonexa API 🤠🚀" });
+app.get("/", (req, res) => {
+  console.log("welcome to velonexa 🤠");
+  console.log(`velonexa is running on port ${port} 🚀`);
+  res.json({status : "connected",
+    message:"welcome to velonexa api 🤠🚀"
+  })
 });
 
 export default app;
