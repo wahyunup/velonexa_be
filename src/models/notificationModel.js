@@ -30,7 +30,7 @@ export const createNotification = async ({
 };
 
 export const getNotificationsByUser = async (user_id) => {
-  return prisma.notification.findMany({
+  return await prisma.notification.findMany({
     where: { target_id: user_id },
     orderBy: { createdAt: "desc" },
     include: {
@@ -41,7 +41,7 @@ export const getNotificationsByUser = async (user_id) => {
 };
 
 export const updateNotif = async (notif_id) => {
-  return prisma.notification.update({
+  return await prisma.notification.update({
     where : { id : Number(notif_id)},
     data : {
       isRead : true

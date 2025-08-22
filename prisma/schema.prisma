@@ -9,9 +9,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
-  // directUrl = env("DIRECT_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model user {
@@ -36,6 +36,7 @@ model user {
 
   chatReceived chat[] @relation("ReceivedMessage")
   chatSent     chat[] @relation("SentMessage")
+  feedSaved feedSaved[]
 }
 
 model follow_user {
@@ -65,6 +66,7 @@ model feed {
   comment      comment_user[]
   like         like_user[]
   notification notification[]
+  feedSaved feedSaved[]
 }
 
 model like_user {
@@ -138,4 +140,16 @@ model chat {
 
   actor  user @relation("SentMessage", fields: [actor_id], references: [id])
   target user @relation("ReceivedMessage", fields: [target_id], references: [id])
+}
+
+model feedSaved {
+  id Int @id @default(autoincrement())
+  feed_id Int
+  isSaved Boolean @default(false)
+  actor_id Int
+
+feed feed @relation(fields: [feed_id], references: [id])
+actor user @relation(fields: [actor_id], references: [id])
+
+@@unique([feed_id, actor_id])
 }

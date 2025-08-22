@@ -10,7 +10,8 @@ export const getUser = async () => {
       email: true,
       display_name: true,
       feed: true,
-      image: true
+      image: true,
+      follower: true
     }
   });
 };
@@ -31,6 +32,7 @@ export const getUserById = async (id) => {
     include: {
       feed: true,
       bio: true,
+      
     }
   });
 };

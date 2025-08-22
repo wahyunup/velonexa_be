@@ -69,8 +69,27 @@ export const editFeed = async (feedID, description, image, address) => {
 };
 
 export const deleteFeed = async (feedId) => {
+  
+ const id = Number(feedId);
+
+  await prisma.comment_like.deleteMany({
+    where: { comment: { feed_id: id } },
+  });
+
+  await prisma.comment_user.deleteMany({
+    where: { feed_id: id },
+  });
+
+  await prisma.like_user.deleteMany({
+    where: { feed_id: id },
+  });
+
+  await prisma.notification.deleteMany({
+    where: { feed_id: id },
+  });
+
   return await prisma.feed.delete({
-    where: { id: Number(feedId) },
+    where: { id},
   });
 };
 
