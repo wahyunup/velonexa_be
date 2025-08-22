@@ -9,34 +9,51 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
 model user {
   id            Int     @id @default(autoincrement())
+  image         String? @default("https://res.cloudinary.com/dbc9pgfws/image/upload/v1752722403/image_placeholder_nmmqdn.png")
   username      String
   display_name  String?
   email         String  @unique
   password      String
   refresh_token String? @db.Text
 
-
-  feed    feed[]
-  like    like_user[]
-  comment comment_user[]
-  bio     bio_user?
+  feed          feed[]
+  like          like_user[]
+  comment       comment_user[]
+  bio           bio_user?
+  comment_likes comment_like[]
+  following     follow_user[]  @relation("target_relation")
+  follower      follow_user[]  @relation("user_relation")
 
   notificationsReceived notification[] @relation("ReceivedNotifications")
   notificationsSent     notification[] @relation("SentNotifications")
 
-  comment_likes comment_like[]
+  chatReceived chat[] @relation("ReceivedMessage")
+  chatSent     chat[] @relation("SentMessage")
+  feedSaved feedSaved[]
+}
+
+model follow_user {
+  id       Int     @id @default(autoincrement())
+  isFollow Boolean @default(false)
+
+  target_id Int
+  target    user @relation("target_relation", fields: [target_id], references: [id])
+
+  user_id Int
+  user    user @relation("user_relation", fields: [user_id], references: [id])
+
+  @@unique([user_id, target_id])
 }
 
 model feed {
   id          Int      @id @default(autoincrement())
-  user_id     Int
   image       String
   address     String
   description String
@@ -44,10 +61,12 @@ model feed {
   save_count  Int
   createdAt   DateTime @default(now())
 
-  user    user @relation(fields: [user_id], references: [id])
+  user_id      Int
+  user         user           @relation(fields: [user_id], references: [id])
   comment      comment_user[]
   like         like_user[]
   notification notification[]
+  feedSaved feedSaved[]
 }
 
 model like_user {
@@ -65,17 +84,16 @@ model like_user {
 }
 
 model comment_user {
-  id            Int      @id @default(autoincrement())
-  user_id       Int
-  feed_id       Int
+  id            Int    @id @default(autoincrement())
   field_comment String
-  like_count    Int?     @default(0)
-  createdAt     DateTime @default(now())
+  like_count    Int
 
-  user user @relation(fields: [user_id], references: [id])
-  feed feed @relation(fields: [feed_id], references: [id])
+  user_id Int
+  user    user @relation(fields: [user_id], references: [id])
 
-  likes comment_like[]
+  feed_id Int
+  feed    feed           @relation(fields: [feed_id], references: [id])
+  likes   comment_like[]
 }
 
 model comment_like {
@@ -101,13 +119,37 @@ model bio_user {
 model notification {
   id        Int      @id @default(autoincrement())
   type      String?
-  actorId   Int
-  targetId  Int
-  feedId    Int
+  actor_id  Int
+  target_id Int
+  feed_id   Int?
   createdAt DateTime @default(now())
   isRead    Boolean  @default(false)
 
-  actor  user  @relation("SentNotifications", fields: [actorId], references: [id])
-  target user  @relation("ReceivedNotifications", fields: [targetId], references: [id])
-  feed   feed? @relation(fields: [feedId], references: [id])
+  actor  user  @relation("SentNotifications", fields: [actor_id], references: [id])
+  target user  @relation("ReceivedNotifications", fields: [target_id], references: [id])
+  feed   feed? @relation(fields: [feed_id], references: [id])
+}
+
+model chat {
+  id        Int      @id @default(autoincrement())
+  actor_id  Int
+  target_id Int
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  actor  user @relation("SentMessage", fields: [actor_id], references: [id])
+  target user @relation("ReceivedMessage", fields: [target_id], references: [id])
+}
+
+model feedSaved {
+  id Int @id @default(autoincrement())
+  feed_id Int
+  isSaved Boolean @default(false)
+  actor_id Int
+
+feed feed @relation(fields: [feed_id], references: [id])
+actor user @relation(fields: [actor_id], references: [id])
+
+@@unique([feed_id, actor_id])
 }

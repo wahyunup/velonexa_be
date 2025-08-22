@@ -27,6 +27,7 @@ export const createComment = async (feedId, userId, content) => {
           id: true,
           username: true,
           display_name: true,
+          image: true
         },
       },
     },
@@ -157,6 +158,7 @@ export const getCommentsByFeedId = async (feedId, userId = null) => {
           id: true,
           username: true,
           display_name: true,
+          image: true
         },
       },
       likes: {
