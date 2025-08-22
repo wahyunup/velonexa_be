@@ -35,6 +35,7 @@ dotenv.config();
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.json());
+
 app.use(router);
 
 // const port = process.env.PRODUCTION_URL ||  3001;

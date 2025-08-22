@@ -1,4 +1,4 @@
-import { cloudinary } from "../config/Cloudinary.js";
+import { cloudinary } from "../config/cloudinary.js";
 import { Readable } from "stream";
 
 export const cloudinaryUpload = (fileBuffer) => {
