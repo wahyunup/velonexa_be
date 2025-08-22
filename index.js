@@ -37,10 +37,10 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(router);
 
-const port = 3001;
-server.listen(port, () => {
+const port = process.env.PRODUCTION_URL ||  3001;
+app.listen(port, () => {
   console.log("welcome to velonexa 🤠");
   console.log(`velonexa is running on port ${port} 🚀`);
 });
 
-// export default app;
+export default app;
