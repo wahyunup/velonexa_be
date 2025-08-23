@@ -72,6 +72,10 @@ export const deleteFeed = async (feedId) => {
   
  const id = Number(feedId);
 
+ await prisma.feedSaved.deleteMany({
+  where: { feed_id: id },
+});
+
   await prisma.comment_like.deleteMany({
     where: { comment: { feed_id: id } },
   });
