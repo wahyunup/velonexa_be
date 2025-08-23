@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 
 import http from "http";
 import { Server } from "socket.io";
-import { socketHandler } from "../socket/index.js";
+// import { socketHandler } from "../socket/index.js";
 
 const corsOptions = {
   origin: ["http://localhost:5173", "https://velonexa.vercel.app"],
@@ -29,7 +29,7 @@ app.use((req, res, next) => {
   next();
 });
 
-socketHandler(io);
+// socketHandler(io);
 
 dotenv.config();
 app.use(cors(corsOptions));
