@@ -1,26 +1,26 @@
-import { createNotification } from "../src/models/notificationModel.js";
+// import { createNotification } from "../src/models/notificationModel.js";
 
-export const notificationSocket = (io, socket) => {
-   socket.on("join_user", (userId) => {
-    socket.join(`user_${userId}`);
-    console.log(`🔔 User ${userId} joined room user_${userId}`);
-  });
+// export const notificationSocket = (io, socket) => {
+//    socket.on("join_user", (userId) => {
+//     socket.join(`user_${userId}`);
+//     console.log(`🔔 User ${userId} joined room user_${userId}`);
+//   });
 
-  socket.on("create_notification", async ({ actorId, targetId, type, feedId }) => {
-    try {
-      const notif = await createNotification({
-        actor_id: actorId,
-        target_id: targetId,
-        type,
-        feed_id: feedId,
-      });
+//   socket.on("create_notification", async ({ actorId, targetId, type, feedId }) => {
+//     try {
+//       const notif = await createNotification({
+//         actor_id: actorId,
+//         target_id: targetId,
+//         type,
+//         feed_id: feedId,
+//       });
 
-      io.to(`user_${targetId}`).emit("new_notification", notif);
-    } catch (error) {
-      console.error("Error sending notification:", error);
-    }
-  });
-};
+//       io.to(`user_${targetId}`).emit("new_notification", notif);
+//     } catch (error) {
+//       console.error("Error sending notification:", error);
+//     }
+//   });
+// };
 
 
 // export const notificationSocket = (io) => {

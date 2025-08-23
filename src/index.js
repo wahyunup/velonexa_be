@@ -9,7 +9,7 @@ import { Server } from "socket.io";
 import { socketHandler } from "../socket/index.js";
 
 const corsOptions = {
-  origin: "https://velonexa.vercel.app",
+  origin: ["http://localhost:5173", "https://velonexa.vercel.app"],
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
@@ -19,7 +19,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://velonexa.vercel.app",
+    origin: ["http://localhost:5173", "https://velonexa.vercel.app"],
     credentials: true,
   },
 });
@@ -38,10 +38,10 @@ app.use(express.json());
 
 app.use(router);
 
-const port = process.env.PRODUCTION_URL ||  3001;
+// const port = process.env.PRODUCTION_URL ||  3001;
 app.get("/", (req, res) => {
   console.log("welcome to velonexa 🤠");
-  console.log(`velonexa is running on port ${port} 🚀`);
+  // console.log(`velonexa is running on port ${port} 🚀`);
   res.json({status : "connected",
     message:"welcome to velonexa api 🤠🚀"
   })
