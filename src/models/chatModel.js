@@ -64,7 +64,7 @@ export const getChatUsers = async (user_id) => {
       }
     },
     orderBy : {
-      createdAt : "asc"
+      createdAt : "desc"
     }
   });
 };
