@@ -9,7 +9,7 @@ import { Server } from "socket.io";
 import { socketHandler } from "../socket/index.js";
 
 const corsOptions = {
-  origin: "*",
+  origin: "http://localhost:5173",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
@@ -19,7 +19,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "*",
+    origin: "http://localhost:5173",
     credentials: true,
   },
 });
