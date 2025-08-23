@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 
-import http from "http";
+// import http from "http";
 // import { Server } from "socket.io";
 // import { socketHandler } from "../socket/index.js";
 
