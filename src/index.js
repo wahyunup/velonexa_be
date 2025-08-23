@@ -24,10 +24,10 @@ const app = express();
 //   },
 // });
 
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
+// app.use((req, res, next) => {
+//   req.io = io;
+//   next();
+// });
 
 // socketHandler(io);
 
