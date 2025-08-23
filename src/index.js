@@ -9,7 +9,7 @@ import { Server } from "socket.io";
 import { socketHandler } from "../socket/index.js";
 
 const corsOptions = {
-  origin: "https://velonexa.vercel.app/",
+  origin: "https://velonexa.vercel.app",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
 };
@@ -19,7 +19,7 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "https://velonexa.vercel.app/",
+    origin: "https://velonexa.vercel.app",
     credentials: true,
   },
 });
