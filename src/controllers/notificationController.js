@@ -22,7 +22,7 @@ export const create = async (req, res) => {
       type,
       feed_id,
     });
-    req.io.to(`user_${target_id}`).emit("new_notification", notif);
+    // req.io.to(`user_${target_id}`).emit("new_notification", notif);
     return res.status(201).json(notif);
   } catch (err) {
     console.error(err);

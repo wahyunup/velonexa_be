@@ -47,7 +47,7 @@ export const createChats = async (req, res) => {
     }
 
     const chat = await createChat(user_id, target_id, message);
-    req.io.to(`user_${target_id}`).emit("new_chat", chat);
+    // req.io.to(`user_${target_id}`).emit("new_chat", chat);
 
     return res.status(200).json({ msg: "create chat success", chat });
   } catch (error) {
