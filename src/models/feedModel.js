@@ -12,6 +12,7 @@ export const getFeed = async (page, limit) => {
         select: {
           username: true,
           image: true,
+          following:true
         },
       },
     },
