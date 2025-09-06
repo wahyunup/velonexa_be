@@ -13,8 +13,12 @@ export const getAllFeed = async (req, res) => {
   try {
     const page = parseInt(req.query.page);
     const limit = parseInt(req.query.limit);
+    const user_id = req.user?.id
+    if(!user_id) {
+      res.status(400).json({msg:"must login first"})
+    }
 
-    const allFeed = await getFeed(page, limit);
+    const allFeed = await getFeed(page, limit, user_id);
     return res.status(200).json(allFeed);
   } catch (error) {
     return res.status(400).json({ msg: error.message });
