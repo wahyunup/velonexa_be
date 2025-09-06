@@ -2,17 +2,33 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-export const getFeed = async (page, limit) => {
+export const getFeed = async (page, limit, user_id) => {
+  const NumUser_id = Number(user_id)
   const skip = (page - 1) * limit;
   return await prisma.feed.findMany({
     skip: skip,
     take: limit,
+    where: {
+      OR: [
+        { user_id: NumUser_id },
+        {
+          user: {
+            following: {
+              some: {
+                user_id: NumUser_id,
+                isFollow: true,
+              },
+            },
+          },
+        },
+      ],
+    },
     include: {
       user: {
         select: {
           username: true,
           image: true,
-          following:true
+          following: true,
         },
       },
     },
@@ -50,9 +66,10 @@ export const createFeed = async (image, address, description, user_id) => {
     },
     include: {
       user: {
-        select: { 
-          username: true, 
-          image: true },
+        select: {
+          username: true,
+          image: true,
+        },
       },
     },
   });
@@ -70,12 +87,11 @@ export const editFeed = async (feedID, description, image, address) => {
 };
 
 export const deleteFeed = async (feedId) => {
-  
- const id = Number(feedId);
+  const id = Number(feedId);
 
- await prisma.feedSaved.deleteMany({
-  where: { feed_id: id },
-});
+  await prisma.feedSaved.deleteMany({
+    where: { feed_id: id },
+  });
 
   await prisma.comment_like.deleteMany({
     where: { comment: { feed_id: id } },
@@ -94,7 +110,7 @@ export const deleteFeed = async (feedId) => {
   });
 
   return await prisma.feed.delete({
-    where: { id},
+    where: { id },
   });
 };
 
