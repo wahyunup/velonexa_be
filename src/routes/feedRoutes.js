@@ -14,7 +14,7 @@ import { upload } from "../middleware/multerMiddleware.js";
 
 const router = express();
 
-router.get("/feeds", getAllFeed);
+router.get("/feeds",authToken, getAllFeed);
 router.get("/feeds-explore", getAllFeedExplore);
 router.post("/feed", authToken, upload.single("file"), createUserFeed);
 router.post("/feed/like/:feed_id", authToken, likeFeed);
