@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import prisma from "../lib/prisma.js";
 
 export const createFollow = async (target_id, user_id) => {
   return await prisma.follow_user.upsert({

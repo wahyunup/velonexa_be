@@ -50,6 +50,7 @@ model follow_user {
   user    user @relation("user_relation", fields: [user_id], references: [id])
 
   @@unique([user_id, target_id])
+  @@index([target_id, isFollow])
 }
 
 model feed {
@@ -67,6 +68,9 @@ model feed {
   like         like_user[]
   notification notification[]
   feedSaved feedSaved[]
+
+  @@index([createdAt])
+  @@index([user_id, createdAt])
 }
 
 model like_user {
@@ -94,6 +98,8 @@ model comment_user {
   feed_id Int
   feed    feed           @relation(fields: [feed_id], references: [id])
   likes   comment_like[]
+
+  @@index([feed_id, id])
 }
 
 model comment_like {
@@ -128,6 +134,8 @@ model notification {
   actor  user  @relation("SentNotifications", fields: [actor_id], references: [id])
   target user  @relation("ReceivedNotifications", fields: [target_id], references: [id])
   feed   feed? @relation(fields: [feed_id], references: [id])
+
+  @@index([target_id, createdAt])
 }
 
 model chat {
@@ -140,6 +148,9 @@ model chat {
 
   actor  user @relation("SentMessage", fields: [actor_id], references: [id])
   target user @relation("ReceivedMessage", fields: [target_id], references: [id])
+
+  @@index([actor_id, target_id, createdAt])
+  @@index([target_id, actor_id, createdAt])
 }
 
 model feedSaved {
@@ -152,4 +163,5 @@ feed feed @relation(fields: [feed_id], references: [id])
 actor user @relation(fields: [actor_id], references: [id])
 
 @@unique([feed_id, actor_id])
+@@index([actor_id, isSaved])
 }

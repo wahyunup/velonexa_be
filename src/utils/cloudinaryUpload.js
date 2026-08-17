@@ -6,7 +6,8 @@ export const cloudinaryUpload = (fileBuffer) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: "velonexa/feed_image",
-        resource_type: "image"
+        resource_type: "image",
+        transformation: [{ width: 1920, height: 1920, crop: "limit", quality: "auto", fetch_format: "auto" }],
       },
       (error, result) => {
         if (error) {
@@ -28,7 +29,8 @@ export const cloudinaryUploadProfile = (fileBuffer) => {
     const stream = cloudinary.uploader.upload_stream(
       {
         folder: "velonexa/profile_image",
-        resource_type: "image"
+        resource_type: "image",
+        transformation: [{ width: 1024, height: 1024, crop: "limit", quality: "auto", fetch_format: "auto" }],
       },
       (error, result) => {
         if (error) {

@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../lib/prisma.js";
 
 export const createNotification = async ({
   actor_id,
@@ -33,6 +31,7 @@ export const getNotificationsByUser = async (user_id) => {
   return await prisma.notification.findMany({
     where: { target_id: user_id },
     orderBy: { createdAt: "desc" },
+    take: 50,
     include: {
       actor: true,
       feed: true,
@@ -40,11 +39,11 @@ export const getNotificationsByUser = async (user_id) => {
   });
 };
 
-export const updateNotif = async (notif_id) => {
-  return await prisma.notification.update({
-    where : { id : Number(notif_id)},
+export const updateNotif = async (notif_id, user_id) => {
+  return prisma.notification.updateMany({
+    where: { id: Number(notif_id), target_id: Number(user_id) },
     data : {
       isRead : true
     }
-  })
+  });
 }

@@ -1,18 +1,33 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../lib/prisma.js";
 
 export const getUser = async () => {
   return await prisma.user.findMany({
     select: {
       id: true,
       username: true,
-      email: true,
       display_name: true,
       feed: true,
       image: true,
       follower: true
     }
+  });
+};
+
+export const searchUser = async (query) => {
+  return await prisma.user.findMany({
+    where: {
+      username: {
+        contains: query,
+        mode: "insensitive",
+      },
+    },
+    select: {
+      id: true,
+      username: true,
+      display_name: true,
+      image: true,
+    },
+    take: 20,
   });
 };
 

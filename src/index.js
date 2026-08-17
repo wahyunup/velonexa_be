@@ -1,12 +1,10 @@
+import "dotenv/config";
 import express from "express";
-import router from "../src/routes/index.js";
-import dotenv from "dotenv";
+import router from "./routes/index.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-
-// import http from "http";
-// import { Server } from "socket.io";
-// import { socketHandler } from "../socket/index.js";
+import helmet from "helmet";
+import { errorHandler, notFound } from "./middleware/errorMiddleware.js";
 
 const corsOptions = {
   origin: [
@@ -20,38 +18,13 @@ const corsOptions = {
 
 const app = express();
 
-// const server = http.createServer(app);
-// const io = new Server(server, {
-//   cors: {
-//     origin: ["http://localhost:5173", "https://velonexa.vercel.app"],
-//     credentials: true,
-//   },
-// });
-
-// app.use((req, res, next) => {
-//   req.io = io;
-//   next();
-// });
-
-// socketHandler(io);
-
-dotenv.config();
+app.set("trust proxy", 1);
+app.use(helmet({ crossOriginResourcePolicy: false }));
 app.use(cors(corsOptions));
 app.use(cookieParser());
-app.use(express.json());
-
+app.use(express.json({ limit: "1mb" }));
 app.use(router);
-
-// const port = 3001 || process.env.PRODUCTION_URL;
-app.get("/", (req, res) => {
-  console.log("welcome to velonexa 🤠");
-  // console.log(`velonexa is running on port ${port} 🚀`);
-  res.json({ status: "connected", message: "welcome to velonexa api 🤠🚀" });
-});
-
-// app.listen(port, () => {
-//   console.log("welcome to velonexa 🤠");
-//   console.log(`velonexa is running on port ${port} 🚀`);
-// });
+app.use(notFound);
+app.use(errorHandler);
 
 export default app;
