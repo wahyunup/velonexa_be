@@ -18,7 +18,11 @@ export const getAllFeedSaved = async (req, res) => {
 
 export const getFeedSavedlogin = async (req, res) => {
   try {
-   const bookmark = await getAllBookmark()
+   const actorId = req.user?.id;
+   if (!actorId) {
+    return res.status(401).json({ msg: "must login first" });
+   }
+   const bookmark = await getAllBookmark(actorId)
    return res.status(200).json({msg:"succes get bookmark user login", bookmark})
   } catch (error) {
     return res.status(400).json({msg:"internal server error"})

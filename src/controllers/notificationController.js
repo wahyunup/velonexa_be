@@ -49,6 +49,7 @@ export const getByUser = async (req, res) => {
 export const readNotification = async (req, res) => {
   try {
     const {notif_id} = req.params;
+    const userId = req.user?.id;
 
     if (!notif_id) {
       return res.status(400).json({
@@ -56,7 +57,10 @@ export const readNotification = async (req, res) => {
       });
     }
 
-    const readNotif = await updateNotif(notif_id);
+    const readNotif = await updateNotif(notif_id, userId);
+    if (readNotif.count === 0) {
+      return res.status(404).json({ msg: "notification not found" });
+    }
     return res.status(200).json({
       msg: "read notif success",
       readNotif,

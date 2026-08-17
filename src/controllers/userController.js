@@ -1,6 +1,7 @@
 import {
   register,
   getUser,
+  searchUser,
   getUserByEmail,
   RefreshToken,
   DeleteRefreshToken,
@@ -13,6 +14,7 @@ import jwt from "jsonwebtoken";
 import { faker } from "@faker-js/faker";
 import validator from "validator";
 import { cloudinaryUploadProfile } from "../utils/cloudinaryUpload.js";
+import { isSupportedImage } from "../utils/imageValidation.js";
 
 export const getAllUser = async (req, res) => {
   try {
@@ -26,6 +28,21 @@ export const getAllUser = async (req, res) => {
       msg: "success",
       data: users,
     });
+  } catch (error) {
+    return res.status(400).json({ msg: error.message });
+  }
+};
+
+export const searchUsers = async (req, res) => {
+  try {
+    const { q } = req.query;
+
+    if (!q || q.trim() === "") {
+      return res.status(200).json({ msg: "success", data: [] });
+    }
+
+    const users = await searchUser(q.trim());
+    return res.status(200).json({ msg: "success", data: users });
   } catch (error) {
     return res.status(400).json({ msg: error.message });
   }
@@ -54,16 +71,16 @@ export const registerUser = async (req, res) => {
     const { username, email, password, confirmPassword } = req.body;
 
     if (!username || !email || !password || !confirmPassword) {
-      return res.status(401).json({ msg: "isi semua field" });
+      return res.status(400).json({ msg: "isi semua field" });
     }
 
     if (!validator.isEmail(email)) {
-      return res.status(401).json({ msg: "format email tidak valid" });
+      return res.status(400).json({ msg: "format email tidak valid" });
     }
 
     if (password.length < 8) {
       return res
-        .status(401)
+        .status(400)
         .json({ msg: "password harus lebih dari 8 karakter" });
     }
 
@@ -73,7 +90,7 @@ export const registerUser = async (req, res) => {
     }
 
     if (password !== confirmPassword) {
-      return res.status(401).json({ msg: "masukan password yang sama" });
+      return res.status(400).json({ msg: "masukan password yang sama" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -83,7 +100,7 @@ export const registerUser = async (req, res) => {
     await register(username, email, hashedPassword, display_name);
     return res.status(200).json({ msg: "register berhasil" });
   } catch (error) {
-    return res.status(400).json({ msg: error.message });
+    return res.status(500).json({ msg: error.message });
   }
 };
 
@@ -109,7 +126,7 @@ export const login = async (req, res) => {
         image: user.image,
       },
       process.env.ACCESS_TOKEN_SECRET,
-      { expiresIn: "7s" }
+      { expiresIn: "15m" }
     );
 
     const refreshToken = jwt.sign(
@@ -126,11 +143,12 @@ export const login = async (req, res) => {
 
     await RefreshToken(user.id, refreshToken);
 
+    const isProduction = process.env.NODE_ENV === "production";
     res.cookie("refresh_token", refreshToken, {
       httpOnly: true,
-      secure: true,
-      sameSite: "none",
-      maxAge: 3600000,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+      maxAge: 604800000,
     });
 
     res.json({
@@ -156,7 +174,12 @@ export const logout = async (req, res) => {
       res.status(400).json({ msg: "refresh token tidak ada" });
     }
     await DeleteRefreshToken(refreshToken);
-    res.clearCookie("refresh_token", { httpOnly: true, secure: true });
+    const isProduction = process.env.NODE_ENV === "production";
+    res.clearCookie("refresh_token", {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax",
+    });
 
     return res.status(200).json({ msg: "logout berhasil" });
   } catch (error) {
@@ -206,15 +229,25 @@ export const createProfileImage = async (req, res) => {
   try {
     const userId = req.user?.id;
     if (!userId) {
-      res.status(401).json({
+      return res.status(401).json({
         msg: "user un authorization",
       });
     }
+
+    if (!req.file) {
+      return res.status(400).json({
+        msg: "image is required",
+      });
+    }
+    if (!isSupportedImage(req.file.buffer)) {
+      return res.status(400).json({ msg: "invalid image file" });
+    }
+
     const fileBuffer = req.file.buffer;
     const imageUrl = await cloudinaryUploadProfile(fileBuffer);
 
     if (!imageUrl) {
-      res.status(400).json({
+      return res.status(400).json({
         msg: "image not found",
       });
     }

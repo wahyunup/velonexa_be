@@ -8,13 +8,13 @@ import {
   getAllFeeds
 } from "../models/feedModel.js";
 import { cloudinaryUpload } from "../utils/cloudinaryUpload.js";
+import { isSupportedImage } from "../utils/imageValidation.js";
 
 export const getAllFeed = async (req, res) => {
   try {
-    const page = parseInt(req.query.page);
-    const limit = parseInt(req.query.limit);
+    const page = Math.max(1, Number.parseInt(req.query.page, 10) || 1);
+    const limit = Math.min(50, Math.max(1, Number.parseInt(req.query.limit, 10) || 20));
     const user_id = req.user?.id
-    console.log(user_id);
     
     if (!user_id) {
       return res.status(400).json({msg:"must login first"})
@@ -50,6 +50,11 @@ export const createUserFeed = async (req, res) => {
     if (!address || !description) {
       return res.status(400).json({ msg: "all field must be fill" });
     }
+
+    if (!req.file) {
+      return res.status(400).json({ msg: "image is required" });
+    }
+
     const fileBuffer = req.file.buffer;
     const imageUrl = await cloudinaryUpload(fileBuffer);
     await createFeed(imageUrl, address, description, user_id);
@@ -63,9 +68,16 @@ export const editUserFeed = async (req, res) => {
   try {
     const { id } = req.params;
     const { description, image, address } = req.body;
+    const userId = req.user?.id;
 
-    await editFeed(id, description, image, address);
-    return res.status(200).json({ msg: "feed updated", editFeed });
+    const updated = await editFeed(id, userId, description, image, address);
+    if (!updated) {
+      return res.status(404).json({ msg: "feed not found" });
+    }
+    if (!isSupportedImage(req.file.buffer)) {
+      return res.status(400).json({ msg: "invalid image file" });
+    }
+    return res.status(200).json({ msg: "feed updated" });
   } catch (error) {
     return res.status(400).json({ msg: error.message });
   }
@@ -74,8 +86,12 @@ export const editUserFeed = async (req, res) => {
 export const deletedUserFeed = async (req, res) => {
   try {
     const { id } = req.params;
-    await deleteFeed(id);
-    return res.status(200).json({ msg: "feed deleted", deleteFeed });
+    const userId = req.user?.id;
+    const deleted = await deleteFeed(id, userId);
+    if (!deleted) {
+      return res.status(404).json({ msg: "feed not found" });
+    }
+    return res.status(200).json({ msg: "feed deleted" });
   } catch (error) {
     return res.status(400).json({ msg: error.message });
   }

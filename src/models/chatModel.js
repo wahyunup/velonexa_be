@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-const prisma = new PrismaClient();
+import prisma from "../lib/prisma.js";
 
 export const createChat = async (user_id, target_id, message) => {
   return await prisma.chat.create({
@@ -36,6 +35,7 @@ export const getChat = async (target_id, user_id) => {
     orderBy: {
       createdAt: "asc",
     },
+    take: 100,
   });
 };
 
@@ -65,6 +65,7 @@ export const getChatUsers = async (user_id) => {
     },
     orderBy : {
       createdAt : "desc"
-    }
+    },
+    take: 100,
   });
 };

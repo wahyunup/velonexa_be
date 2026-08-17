@@ -1,6 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import prisma from "../lib/prisma.js";
 
 export const getFeed = async (page, limit, user_id) => {
   const NumUser_id = Number(user_id)
@@ -51,6 +49,7 @@ export const getAllFeeds = async () => {
     orderBy: {
       createdAt: "desc",
     },
+    take: 30,
   });
 };
 
@@ -75,74 +74,59 @@ export const createFeed = async (image, address, description, user_id) => {
   });
 };
 
-export const editFeed = async (feedID, description, image, address) => {
-  return await prisma.feed.update({
-    where: { id: Number(feedID) },
+export const editFeed = async (feedID, userId, description, image, address) => {
+  const result = await prisma.feed.updateMany({
+    where: { id: Number(feedID), user_id: Number(userId) },
     data: {
       description: description,
       image: image,
       address: address,
     },
   });
+
+  return result.count > 0;
 };
 
-export const deleteFeed = async (feedId) => {
+export const deleteFeed = async (feedId, userId) => {
   const id = Number(feedId);
 
-  await prisma.feedSaved.deleteMany({
-    where: { feed_id: id },
-  });
+  return prisma.$transaction(async (tx) => {
+    const feed = await tx.feed.findFirst({
+      where: { id, user_id: Number(userId) },
+      select: { id: true },
+    });
 
-  await prisma.comment_like.deleteMany({
-    where: { comment: { feed_id: id } },
-  });
+    if (!feed) return false;
 
-  await prisma.comment_user.deleteMany({
-    where: { feed_id: id },
-  });
+    await tx.feedSaved.deleteMany({ where: { feed_id: id } });
+    await tx.comment_like.deleteMany({ where: { comment: { feed_id: id } } });
+    await tx.comment_user.deleteMany({ where: { feed_id: id } });
+    await tx.like_user.deleteMany({ where: { feed_id: id } });
+    await tx.notification.deleteMany({ where: { feed_id: id } });
+    await tx.feed.delete({ where: { id } });
 
-  await prisma.like_user.deleteMany({
-    where: { feed_id: id },
-  });
-
-  await prisma.notification.deleteMany({
-    where: { feed_id: id },
-  });
-
-  return await prisma.feed.delete({
-    where: { id },
+    return true;
   });
 };
 
 export const addLike = async (user_id, feed_id, like) => {
-  const existing = await prisma.like_user.findUnique({
-    where: {
-      user_id_feed_id: {
-        user_id: Number(user_id),
-        feed_id: Number(feed_id),
-      },
-    },
-  });
-
-  if (!existing) {
-    // Belum pernah like
-    await prisma.like_user.create({
-      data: {
-        user_id: Number(user_id),
-        feed_id: Number(feed_id),
-        isLike: like,
-      },
+  const userId = Number(user_id);
+  const feedId = Number(feed_id);
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.like_user.findUnique({
+      where: { user_id_feed_id: { user_id: userId, feed_id: feedId } },
     });
-    if (like) {
-      await prisma.feed.update({
-        where: { id: Number(feed_id) },
-        data: { like_count: { increment: 1 } },
-      });
+
+    if (!existing) {
+      await tx.like_user.create({ data: { user_id: userId, feed_id: feedId, isLike: Boolean(like) } });
+      if (like) {
+        await tx.feed.update({ where: { id: feedId }, data: { like_count: { increment: 1 } } });
+      }
+      return;
     }
-  } else {
-    // Sudah pernah like, cek apakah status berubah
+
     if (existing.isLike !== like) {
-      await prisma.like_user.update({
+      await tx.like_user.update({
         where: {
           user_id_feed_id: {
             user_id: Number(user_id),
@@ -152,14 +136,14 @@ export const addLike = async (user_id, feed_id, like) => {
         data: { isLike: like },
       });
 
-      await prisma.feed.update({
-        where: { id: Number(feed_id) },
+      await tx.feed.update({
+        where: { id: feedId },
         data: {
           like_count: like ? { increment: 1 } : { decrement: 1 },
         },
       });
     }
-  }
+  });
 };
 
 export const getLikeId = async (user_id, feed_id) => {

@@ -21,12 +21,12 @@ export const getToken = async (req, res) => {
           {
             id: refreshTokenUser.id,
             username: refreshTokenUser.username,
-            displayname: refreshTokenUser.display_name,
+            display_name: refreshTokenUser.display_name,
             email: refreshTokenUser.email,
             image : refreshTokenUser.image
           },
           process.env.ACCESS_TOKEN_SECRET,
-          { expiresIn: "7s" }
+          { expiresIn: "15m" }
         );
 
         return res.json({ accessToken });

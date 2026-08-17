@@ -146,3 +146,23 @@ export const getCommentLikes = async (req, res) => {
     });
   }
 };
+
+export const getCommentLikeStatus = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const userId = req.user?.id;
+    const comment = await getCommentWithLikes(commentId, userId);
+
+    if (!comment) {
+      return res.status(404).json({ success: false, message: "Comment not found" });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: { isLiked: comment.isLiked, likeCount: comment.like_count },
+    });
+  } catch (error) {
+    console.error("Error in getCommentLikeStatus:", error);
+    return res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
