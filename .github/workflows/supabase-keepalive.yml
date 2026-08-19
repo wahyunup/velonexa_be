@@ -1,6 +1,9 @@
 name: Supabase Keep Alive
 
 on:
+  push : 
+    branches:
+      - main
   schedule:
     - cron: "59 * * * *"
 
