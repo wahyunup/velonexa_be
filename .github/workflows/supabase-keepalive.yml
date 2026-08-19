@@ -14,25 +14,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Wake the database up
+      - name: 🚀 Wake the database up
         run: |
-          echo "Waking up the database..."
-          curl -sS \
+          curl -f -sS \
             -H "x-apikey-keepalive: ${{ secrets.X_APIKEY_KEEPALIVE }}" \
             -H "Content-Type: application/json" \
             -d '{"status":"alive"}' \
             "https://velonexa-be.vercel.app/keepalive"
-
-          echo ""
-          echo "🚀 Database is awake"
+       
       - name: Ping Supabase
         run: |
-          echo "Pinging Supabase to keep the database warm..."
-          curl -sS \
+          curl -f -sS \
             -H "x-apikey-keepalive: ${{ secrets.X_APIKEY_KEEPALIVE }}" \
             "https://velonexa-be.vercel.app/keepalive/1"
-          echo ""
-          echo "🚀 Supabase fly higher"
 
-      - name: finish
-        run: echo "Finish!"
+      - name: Done!
+        run: |
+          echo "================================"
+          echo "🎉 Supabase Keep Alive finished!"
+          echo "================================"
+        
