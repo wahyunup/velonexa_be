@@ -14,6 +14,15 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: 🔍 Check API Key
+        run: |
+          if [ -z "${{ secrets.X_APIKEY_KEEPALIVE }}" ]; then
+            echo "❌ GitHub Secret kosong atau tidak tersedia"
+            exit 1
+          else
+            echo "✅ GitHub Secret tersedia"
+          fi
        
       - name: Ping Supabase
         run: |
