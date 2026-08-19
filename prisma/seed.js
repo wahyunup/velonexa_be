@@ -4,7 +4,7 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-const seeds = [
+const userSeed = [
   {
     email: "wahyunup@gmail.com",
     username: "wahyunup",
@@ -19,8 +19,14 @@ const seeds = [
   },
 ];
 
+const keepaliveSeed = {
+  id: 1,
+  status : "alive",
+  createdAt : new Date(),
+}
+
 async function main() {
-  for (const seed of seeds) {
+  for (const seed of userSeed) {
     const hashedPassword = await bcrypt.hash(seed.password, 10);
 
     const user = await prisma.user.upsert({
@@ -40,6 +46,20 @@ async function main() {
 
     console.log(`Seeded user: ${user.email} (username: ${user.username})`);
   }
+
+  const keepalive = await prisma.keepalive.upsert({
+    where: { id: keepaliveSeed.id },
+    update: {
+      status: keepaliveSeed.status,
+      createdAt: keepaliveSeed.createdAt,
+    },
+    create: {
+      status: keepaliveSeed.status,
+      createdAt: keepaliveSeed.createdAt,
+    },
+  });
+
+  console.log(`Seeded keepalive with ID: ${keepalive.id}`);
 }
 
 main()

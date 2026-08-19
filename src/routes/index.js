@@ -7,6 +7,8 @@ import notificationRoutes from "../routes/notificationRoutes.js";
 import followRoutes from "../routes/followRoutes.js";
 import chatRoutes from "../routes/chatRoutes.js";
 import feedSavedRoutes from "../routes/feedSavedRoutes.js"
+import keepaliveRoute from "../routes/keepaliveRoute.js";
+
 const router = express.Router();
 
 router.use(
@@ -17,7 +19,8 @@ router.use(
   notificationRoutes,
   followRoutes,
   chatRoutes,
-  feedSavedRoutes
+  feedSavedRoutes,
+  keepaliveRoute
 );
 
 export default router;
