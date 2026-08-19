@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -34,9 +34,9 @@ model user {
   notificationsReceived notification[] @relation("ReceivedNotifications")
   notificationsSent     notification[] @relation("SentNotifications")
 
-  chatReceived chat[] @relation("ReceivedMessage")
-  chatSent     chat[] @relation("SentMessage")
-  feedSaved feedSaved[]
+  chatReceived chat[]      @relation("ReceivedMessage")
+  chatSent     chat[]      @relation("SentMessage")
+  feedSaved    feedSaved[]
 }
 
 model follow_user {
@@ -67,7 +67,7 @@ model feed {
   comment      comment_user[]
   like         like_user[]
   notification notification[]
-  feedSaved feedSaved[]
+  feedSaved    feedSaved[]
 
   @@index([createdAt])
   @@index([user_id, createdAt])
@@ -154,14 +154,21 @@ model chat {
 }
 
 model feedSaved {
-  id Int @id @default(autoincrement())
-  feed_id Int
-  isSaved Boolean @default(false)
+  id       Int     @id @default(autoincrement())
+  feed_id  Int
+  isSaved  Boolean @default(false)
   actor_id Int
 
-feed feed @relation(fields: [feed_id], references: [id])
-actor user @relation(fields: [actor_id], references: [id])
+  feed  feed @relation(fields: [feed_id], references: [id])
+  actor user @relation(fields: [actor_id], references: [id])
 
-@@unique([feed_id, actor_id])
-@@index([actor_id, isSaved])
+  @@unique([feed_id, actor_id])
+  @@index([actor_id, isSaved])
+}
+
+// delete soon, just for supabase free plan
+model keepalive {
+  id        Int      @id @default(autoincrement())
+  status    String
+  createdAt DateTime @default(now())
 }
