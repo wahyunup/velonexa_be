@@ -14,6 +14,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+       
+      - name: Ping Supabase
+        run: |
+          curl -f -sS \
+            -H "x-apikey-keepalive: ${{ secrets.X_APIKEY_KEEPALIVE }}" \
+            "https://velonexa-be.vercel.app/keepalive/1"
+            
       - name: 🚀 Wake the database up
         run: |
           curl -f -sS \
@@ -21,12 +28,6 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"status":"alive"}' \
             "https://velonexa-be.vercel.app/keepalive"
-       
-      - name: Ping Supabase
-        run: |
-          curl -f -sS \
-            -H "x-apikey-keepalive: ${{ secrets.X_APIKEY_KEEPALIVE }}" \
-            "https://velonexa-be.vercel.app/keepalive/1"
 
       - name: Done!
         run: |
